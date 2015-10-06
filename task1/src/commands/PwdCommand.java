@@ -9,7 +9,7 @@ public final class PwdCommand implements ICommand {
         if (s.getArgs().size() != 0) {
             return s.failure("Expected no arguments");
         }
-        System.out.println(System.getProperty("user.dir"));
+        s.out.println(System.getProperty("user.dir"));
         return s.ok();
     }
 

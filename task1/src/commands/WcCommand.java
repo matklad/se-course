@@ -14,7 +14,7 @@ public final class WcCommand implements ICommand {
             nWords += line.split("\\s+").length;
             nChars += line.length();
         }
-        System.out.printf("lines: %d\nwords: %d\nchars: %d\n%s\n",
+        s.out.printf("lines: %d\nwords: %d\nchars: %d\n%s\n",
                 nLines, nWords, nChars, s.getArgs().get(0));
         return s.ok();
     }

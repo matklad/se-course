@@ -1,9 +1,6 @@
 package commander;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 
 public final class Shell {
@@ -22,13 +19,16 @@ public final class Shell {
     public void start() throws IOException {
         while (true) {
             displayPrompt();
-            final Input input = readInput();
-            if (exitCommand.equals(input.cmd)) {
+            final List<Syntax.CmdInvocation> cmdInvocations = readInput();
+            if (cmdInvocations.size() == 0) {
+                continue;
+            }
+            final Syntax.CmdInvocation first = cmdInvocations.get(0);
+            if (exitCommand.equals(first.cmd)) {
                 return;
             }
-
-            if (manCommand.equals(input.cmd)) {
-                final String target = input.args.get(1);
+            if (manCommand.equals(first.cmd)) {
+                final String target = first.args.get(0);
                 final ICommand cmd = findCommand(target);
                 if (cmd == null) {
                     displayError("Unknown command " + target);
@@ -39,32 +39,57 @@ public final class Shell {
                 continue;
             }
 
-            final ICommand cmd = findCommand(input.cmd);
-            if (cmd == null) {
-                displayError("Invalid command " + input.cmd);
-
-            } else {
-                final CommanderService handler = new CommanderService(input.args, out);
-                try {
-                    final CommanderService.Result result = cmd.execute(handler);
-                    if (!result.isOk()) {
-                        displayError(result.getError());
-                    }
-                } catch (final CommanderService.CommandException e) {
-                    displayError(e.message);
+            final List<ResolvedInvocation> pipeline = new ArrayList<>();
+            for (final Syntax.CmdInvocation cmdInvocation : cmdInvocations) {
+                final ResolvedInvocation resolved = resolve(cmdInvocation);
+                if (resolved == null) {
+                    displayError("Unknown command " + cmdInvocation.cmd);
                 }
-
+                pipeline.add(resolved);
             }
 
+            execPipeline(pipeline);
         }
     }
 
-    private Input readInput() throws IOException {
-        final String[] parts = in.readLine().trim().split("\\s+");
-        if (parts.length == 0) {
-            return new Input(null, new ArrayList<>());
+    private void execPipeline(final List<ResolvedInvocation> pipeline) {
+        // This is a suboptimal solution, because it buffers all intermediate output in memory.
+        // However, spawning a thread per pipeline element is also a bad solution: it is a bit complicated and
+        // requires the user of the library to make her code thread safe.
+
+        // The nice solution would be a generator-based pipeline (see Python Cookbook, 4.13, Creating Data Processing Pipelines).
+        // Alas, there are no generators in Java :(
+        byte[] buf = new byte[0];
+        int idx = 0;
+        for (final ResolvedInvocation part : pipeline) {
+            final boolean isLast = idx == pipeline.size() - 1;
+            final ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+            final ByteArrayInputStream inBuf = new ByteArrayInputStream(buf);
+
+            final CommanderService handler = new CommanderService(part.args,
+                    new BufferedReader(new InputStreamReader(inBuf)),
+                    isLast ? out: new PrintStream(outBuf)
+            );
+
+            try {
+                final CommanderService.Result result = part.cmd.execute(handler);
+                if (!result.isOk()) {
+                    displayError(result.getError());
+                    break;
+                }
+            } catch (final CommanderService.CommandException e) {
+                displayError(e.message);
+                break;
+            }
+
+            buf = outBuf.toByteArray();
+            idx += 1;
         }
-        return new Input(parts[0], Arrays.asList(parts));
+
+    }
+
+    private List<Syntax.CmdInvocation> readInput() throws IOException {
+        return Syntax.parse(in.readLine());
     }
 
     private void displayPrompt() {
@@ -79,15 +104,23 @@ public final class Shell {
         out.print(message);
     }
 
-    private ICommand findCommand(final String name) {
-        return commands.get(name);
+    private ResolvedInvocation resolve(final Syntax.CmdInvocation cmd) {
+        final ICommand c = findCommand(cmd.cmd);
+        if (c == null) {
+            return null;
+        }
+        return new ResolvedInvocation(c, cmd.args);
     }
 
-    private class Input {
-        final String cmd;
+    private ICommand findCommand(final String cmd) {
+        return commands.get(cmd);
+    }
+
+    private final class ResolvedInvocation {
+        final ICommand cmd;
         final List<String> args;
 
-        public Input(final String cmd, final List<String> args) {
+        private ResolvedInvocation(final ICommand cmd, final List<String> args) {
             this.cmd = cmd;
             this.args = args;
         }

@@ -1,7 +1,9 @@
 package commander;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,12 +11,15 @@ import java.util.List;
 
 public final class CommanderService {
     final private List<String> args;
+    final public BufferedReader in;
     final public PrintStream out;
 
-    CommanderService(final List<String> args, final PrintStream out) {
+    CommanderService(final List<String> args, final BufferedReader in, final PrintStream out) {
+        this.in = in;
         if (args.size() == 0) {
             throw new IllegalArgumentException("args should include at least the name of command");
         }
+
         this.args = args;
         this.out = out;
     }
