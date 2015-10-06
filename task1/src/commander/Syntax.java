@@ -7,8 +7,12 @@ import java.util.List;
 final class Syntax {
     static List<CmdInvocation> parse(final String line) {
         final List<CmdInvocation> result = new ArrayList<>();
-        for (final String part: line.trim().split("\\|")) {
-            final String[] args = part.trim().split("\\s+");
+        for (String part: line.split("\\|")) {
+            part = part.trim();
+            if (part.isEmpty()) {
+                continue;
+            }
+            final String[] args = part.split("\\s+");
             if (args.length == 0) {
                 continue;
             }

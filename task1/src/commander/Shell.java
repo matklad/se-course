@@ -17,7 +17,7 @@ public final class Shell {
     }
 
     public void start() throws IOException {
-        while (true) {
+        loop: while (true) {
             displayPrompt();
             final List<Syntax.CmdInvocation> cmdInvocations = readInput();
             if (cmdInvocations.size() == 0) {
@@ -44,6 +44,7 @@ public final class Shell {
                 final ResolvedInvocation resolved = resolve(cmdInvocation);
                 if (resolved == null) {
                     displayError("Unknown command " + cmdInvocation.cmd);
+                    continue loop;
                 }
                 pipeline.add(resolved);
             }

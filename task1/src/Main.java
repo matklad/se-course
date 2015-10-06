@@ -1,6 +1,7 @@
 import commander.Shell;
 import commander.ShellBuilder;
 import commands.CatCommand;
+import commands.GrepCommand;
 import commands.PwdCommand;
 import commands.WcCommand;
 
@@ -10,6 +11,7 @@ final class Main {
                 .add("cat", new CatCommand())
                 .add("wc", new WcCommand())
                 .add("pwd", new PwdCommand())
+                .add("grep", new GrepCommand())
                 .build();
 
         try {
