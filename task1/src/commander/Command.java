@@ -1,6 +1,6 @@
 package commander;
 
-public interface ICommand {
+public interface Command {
     CommanderService.Result execute(CommanderService handler);
 
     String man();

@@ -6,12 +6,12 @@ import java.util.*;
 public final class Shell {
     static final String exitCommand = "quit";
     static final String manCommand = "man";
-    private final Map<String, ICommand> commands;
+    private final Map<String, Command> commands;
     private final String prompt;
     private final PrintStream out = System.out;
     private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
-    Shell(final String prompt, final Map<String, ICommand> commands) {
+    Shell(final String prompt, final Map<String, Command> commands) {
         this.commands = new HashMap<>(commands);
         this.prompt = prompt;
     }
@@ -29,7 +29,7 @@ public final class Shell {
             }
             if (manCommand.equals(first.cmd)) {
                 final String target = first.args.get(0);
-                final ICommand cmd = findCommand(target);
+                final Command cmd = findCommand(target);
                 if (cmd == null) {
                     displayError("Unknown command " + target);
                 } else {
@@ -106,22 +106,22 @@ public final class Shell {
     }
 
     private ResolvedInvocation resolve(final Syntax.CmdInvocation cmd) {
-        final ICommand c = findCommand(cmd.cmd);
+        final Command c = findCommand(cmd.cmd);
         if (c == null) {
             return null;
         }
         return new ResolvedInvocation(c, cmd.args);
     }
 
-    private ICommand findCommand(final String cmd) {
+    private Command findCommand(final String cmd) {
         return commands.get(cmd);
     }
 
     private final class ResolvedInvocation {
-        final ICommand cmd;
+        final Command cmd;
         final List<String> args;
 
-        private ResolvedInvocation(final ICommand cmd, final List<String> args) {
+        private ResolvedInvocation(final Command cmd, final List<String> args) {
             this.cmd = cmd;
             this.args = args;
         }

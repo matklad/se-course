@@ -1,34 +1,34 @@
 package commands;
 
 import commander.CommanderService;
-import commander.ICommand;
+import commander.Command;
 
 import java.io.IOException;
 
-public final class GrepCommand implements ICommand {
+public final class GrepCommand implements Command {
     @Override
-    public CommanderService.Result execute(final CommanderService handler) {
-        if (handler.getArgs().size() != 1) {
-            return handler.failure("expected one argument, got " + handler.getArgs().size());
+    public CommanderService.Result execute(final CommanderService service) {
+        if (service.getArgs().size() != 1) {
+            return service.failure("expected one argument, got " + service.getArgs().size());
         }
 
-        final String pattern = handler.getArgs().get(0);
+        final String pattern = service.getArgs().get(0);
         try {
             while (true) {
-                final String line = handler.in.readLine();
+                final String line = service.in.readLine();
                 if (line == null) {
                     break;
                 }
                 if (line.contains(pattern)) {
-                    handler.out.println(line);
+                    service.out.println(line);
                 }
 
             }
         } catch (final IOException ignored) {
-            return handler.failure("grep: IO failure");
+            return service.failure("grep: IO failure");
         }
 
-        return handler.ok();
+        return service.ok();
     }
 
     @Override

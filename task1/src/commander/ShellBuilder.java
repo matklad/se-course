@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class ShellBuilder {
-    private final Map<String, ICommand> commands = new HashMap<>();
+    private final Map<String, Command> commands = new HashMap<>();
     @SuppressWarnings("FieldCanBeLocal")
     private final String prompt = ">>>";
 
@@ -12,7 +12,7 @@ public final class ShellBuilder {
 
     }
 
-    public ShellBuilder add(final String name, final ICommand cmd) {
+    public ShellBuilder add(final String name, final Command cmd) {
         if (commands.containsKey(name) ||
                 Shell.exitCommand.equals(name) ||
                 Shell.manCommand.equals(name)) {

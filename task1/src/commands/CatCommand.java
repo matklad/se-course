@@ -1,13 +1,13 @@
 package commands;
 
 import commander.CommanderService;
-import commander.ICommand;
+import commander.Command;
 
-public final class CatCommand implements ICommand {
+public final class CatCommand implements Command {
     @Override
-    public CommanderService.Result execute(final CommanderService s) {
-        s.readFileFromArgument().forEach(s.out::println);
-        return s.ok();
+    public CommanderService.Result execute(final CommanderService service) {
+        service.readFileFromArgument().forEach(service.out::println);
+        return service.ok();
     }
 
     @Override

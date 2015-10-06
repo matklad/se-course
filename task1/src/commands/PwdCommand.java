@@ -1,16 +1,16 @@
 package commands;
 
 import commander.CommanderService;
-import commander.ICommand;
+import commander.Command;
 
-public final class PwdCommand implements ICommand {
+public final class PwdCommand implements Command {
     @Override
-    public CommanderService.Result execute(final CommanderService s) {
-        if (s.getArgs().size() != 0) {
-            return s.failure("Expected no arguments");
+    public CommanderService.Result execute(final CommanderService service) {
+        if (service.getArgs().size() != 0) {
+            return service.failure("Expected no arguments");
         }
-        s.out.println(System.getProperty("user.dir"));
-        return s.ok();
+        service.out.println(System.getProperty("user.dir"));
+        return service.ok();
     }
 
     @Override
