@@ -1,5 +1,7 @@
 package commander;
 
+import commander.argparse.ArgParser;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -26,6 +28,11 @@ public final class CommanderService {
 
     public List<String> getArgs() {
         return args.subList(1, args.size());
+    }
+
+//  The user can create argParser manually, but providing it "as a service" makes the API more fluent.
+    public ArgParser argParser() {
+        return new ArgParser(getArgs());
     }
 
     public Result ok() {

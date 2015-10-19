@@ -8,13 +8,17 @@ public final class Shell {
     static final String manCommand = "man";
     private final Map<String, Command> commands;
     private final String prompt;
-    private final PrintStream out = System.out;
-    private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    private final PrintStream out;
+    private final BufferedReader in;
 
-    Shell(final String prompt, final Map<String, Command> commands) {
+    Shell(final String prompt, final Map<String, Command> commands, final PrintStream out, final BufferedReader in) {
         this.commands = new HashMap<>(commands);
         this.prompt = prompt;
+        this.out = out;
+        this.in = in;
     }
+
+
 
     public void start() throws IOException {
         loop: while (true) {

@@ -1,18 +1,33 @@
 package commands;
 
-import commander.CommanderService;
 import commander.Command;
+import commander.CommanderService;
+import commander.argparse.Arguments;
 
 import java.io.IOException;
 
 public final class GrepCommand implements Command {
     @Override
     public CommanderService.Result execute(final CommanderService service) {
+        final Arguments args = service.argParser()
+                .flag("i")
+                .flag("w")
+                .intKey("A")
+                .positional("pattern")
+                .positional("file")
+                .parse();
+
+        final boolean caseInsensitive = args.has("i");
+        final boolean wholeWords = args.has("w");
+        final int afterContext = args.getInt("A", 0);
+        final String pattern = args.positional("pattern");
+        final String file = args.positional("file");
+
+
         if (service.getArgs().size() != 1) {
             return service.failure("expected one argument, got " + service.getArgs().size());
         }
 
-        final String pattern = service.getArgs().get(0);
         try {
             while (true) {
                 final String line = service.in.readLine();
