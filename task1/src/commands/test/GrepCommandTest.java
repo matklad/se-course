@@ -3,14 +3,14 @@ package commands.test;
 import commander.Shell;
 import commander.ShellBuilder;
 import commands.GrepCommand;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import java.io.*;
 
 
 public class GrepCommandTest {
 
-    private void checkOutput(final String cmd, final String expectedStdout) throws IOException {
+    private String run(final String cmd) throws IOException {
         final BufferedReader in = new BufferedReader(new StringReader(cmd + "\nquit"));
 
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -21,47 +21,43 @@ public class GrepCommandTest {
                 .add("grep", new GrepCommand())
                 .build();
         shell.start();
-        Assert.assertEquals(buf.toString().trim(), expectedStdout);
+        return buf.toString();
     }
 
     @org.junit.Test
     public void testBasic() throws Exception {
-        checkOutput("grep \"Минимальный\" README.md",
-                "Минимальный синтаксис grep");
-
+        final String result = run("grep \"Минимальный\" README.md");
+        Assert.assertEquals("Минимальный синтаксис grep", result);
     }
 
     @org.junit.Test
     public void testRe1() throws Exception {
-        checkOutput("grep \"Минимальный$\" README.md",
-                "");
+        final String result = run("grep \"Минимальный$\" README.md");
+        Assert.assertEquals("", result);
     }
 
     @org.junit.Test
     public void testRe2() throws Exception {
-        checkOutput("grep \"^Минимальный\" README.md",
-                "Минимальный синтаксис grep");
+        final String result = run("grep \"^Минимальный\" README.md");
+        Assert.assertEquals("Минимальный синтаксис grep", result);
     }
 
     @org.junit.Test
     public void testCaseInsensitive() throws Exception {
-        checkOutput("grep -i \"минимальный$\" README.md",
-                "Минимальный синтаксис grep");
+        final String result = run("grep -i \"минимальный$\" README.md");
+        Assert.assertEquals("Минимальный синтаксис grep", result);
     }
 
     @org.junit.Test
     public void testWords() throws Exception {
-        checkOutput("grep -w \"Минимал\" README.md",
-                "");
+        final String result = run("grep -w \"Минимал\" README.md");
+        Assert.assertEquals("", result);
     }
 
     @org.junit.Test
     public void testContext() throws Exception {
-        checkOutput("grep -A 1 \"II\" README.md",
-                "Часть II (15.09.2015)\n" +
-                        "---------------------");
-
+        final String result = run("grep -A 1 \"II\" README.md");
+        Assert.assertEquals("Часть II (15.09.2015)\n" +
+                "---------------------", result);
     }
-
-
 }
